@@ -1,0 +1,394 @@
+===========expressjs topic 1===================
+1) node --version
+2 )npm --version
+
+3) npm install <package-name>
+
+4)  npm init (create pakagejson)
+
+==============
+npm install --save express
+npm install --save body-parser
+npm install --save path
+npm install --save mongoose
+
+npm install -g nodemon
+
+
+=================Routing==============
+app.method(path, handler)
+
+This METHOD can be applied to any one of the HTTP verbs – get, set, put, delete.
+
+Handler is a callback function that executes when a matching request type is found on the relevant route.
+
+var express = require('express');
+var app = express();
+
+app.get('/hello', function(req, res){
+   res.send("Hello World!");
+});
+
+app.listen(3000);
+
+localhost:3000/hello
+
+==================== Routers =========
+
+things.js
+
+var express = require('express');
+var router = express.Router();
+
+router.get('/', function(req, res){
+   res.send('GET route on things.');
+});
+router.post('/', function(req, res){
+   res.send('POST route on things.');
+});
+
+//export this router to use in our index.js
+module.exports = router;
+
+=========================app.js=======
+
+var express = require('Express');
+var app = express();
+
+var things = require('./things.js');
+
+//both index.js and things.js should be in same directory
+app.use('/HOME', things);
+
+app.listen(3000);
+
+=============================HTTP Methods==================
+
+
+S.No.	Method & Description
+1	GET
+
+The GET method requests a representation of the specified resource. Requests using GET should only retrieve data and should have no other effect.
+
+2	POST
+
+The POST method requests that the server accept the data enclosed in the request as a new object/entity of the resource identified by the URI.
+
+3	PUT
+
+The PUT method requests that the server accept the data enclosed in the request as a modification to existing object identified by the URI. If it does not exist then the PUT method should create one.
+
+4	DELETE
+
+The DELETE method requests that the server delete the specified resource.
+
+============================URL Building=========
+To use the dynamic routes, we SHOULD provide different types of routes. Using dynamic routes allows us to pass parameters and process based on them
+
+   //    app.get(/shah/:id);
+
+app.get('/:id', function(req, res){
+ 
+   res.send('The id you specified is ' + req.params.id);
+ 
+});
+
+
+app.get('/:name/:id', function(req, res) {
+   res.send('id: ' + req.params.id + ' and name: ' + req.params.name);
+});
+
+// id: 344 and name: shahnawaz
+
+
+app.get('/:id([0-9]{5})', function(req, res){
+   res.send('id: ' + req.params.id);
+});
+
+==============================Middleware=====================
+Middleware functions are functions that have access to the request object (req), the response object (res), and the next middleware function in the application’s request-response cycle. These functions are used to modify req and res objects for tasks like parsing request bodies, adding response headers, etc
+
+
+
+//First middleware before response is sent
+app.use(function(req, res, next){
+   console.log("Start");
+   next();
+});
+
+//Route handler
+app.get('/', function(req, res, next){
+   res.send("Middle");
+   next();
+});
+
+app.use('/', function(req, res){
+   console.log('End');
+});
+
+================Third Party Middleware=========
+A list of Third party middleware for Express is available here. Following are some of the most commonly used middleware
+
+http://expressjs.com/en/resources/middleware.html
+
+
+var bodyParser = require('body-parser');
+
+//To parse URL encoded data
+app.use(bodyParser.urlencoded({ extended: false }))
+
+//To parse json data
+app.use(bodyParser.json())
+
+===============Serving static files========
+Static files are files that clients download as they are from the server. Create a new directory, public.
+
+app.use(express.static('public'));
+
+==========
+
+npm install --save body-parser multer
+var multer = require('multer');
+var upload = multer();
+
+// for parsing multipart/form-data
+app.use(upload.array()); 
+
+=============== Database================
+
+https://mongoosejs.com/docs/schematypes.html
+
+npm install --save mongoose
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/my_db');
+
+var personSchema = mongoose.Schema({
+   name: String,
+   age: Number,
+   nationality: String
+});
+var Person = mongoose.model("Person", personSchema);
+
+===========Retrieving Documents====================
+
+1)   Model.find(conditions, callback)
+This function finds all the documents matching the fields in conditions object. Same operators used in Mongo also work in mongoose.
+
+
+Person.find(function(err, response){
+   console.log(response);
+});
+
+
+Person.find({name: "shah", age: 20}, 
+   function(err, response){
+      console.log(response);
+});
+
+
+Person.find({nationality: "pakistan"}, "name", function(err, response){
+   console.log(response);
+});
+
+2) Model.findOne(conditions, callback)
+
+3)  Model.findById(id, callback)
+
+Person.findById("507f1f77bcf86cd799439011", function(err, response){
+   console.log(response);
+});
+
+
+4) Model.update(condition, updates, callback)
+
+Person.update({age: 25}, {nationality: "American"}, function(err, response){
+   console.log(response);
+});
+
+
+5)Model.findOneAndUpdate(condition, updates, callback)
+
+Person.findOneAndUpdate({name: "shah"}, {age: 40}, function(err, response) {
+   console.log(response);
+});
+
+6)  Model.findByIdAndUpdate(id, updates, callback)
+
+
+Person.findByIdAndUpdate("507f1f77bcf86cd799439011", {name: "James"}, 
+   function(err, response){
+      console.log(response);
+});
+
+app.put('/people/:id', function(req, res){
+
+   Person.findByIdAndUpdate(req.params.id, req.body, function(err, response){
+      if(err) res.json({message: "Error in updating person with id " + req.params.id});
+      res.json(response);
+   });
+
+
+7) Model.findByIdAndRemove(id, [callback])
+
+app.delete('/people/:id', function(req, res){
+   Person.findByIdAndRemove(req.params.id, function(err, response){
+      if(err) res.json({message: "Error in deleting record id " + req.params.id});
+      else res.json({message: "Person with id " + req.params.id + " removed."});
+   });
+});
+
+====================================RESTFul APIs==============
+
+An API is always needed to create mobile applications, single page applications, use AJAX calls and provide data to clients. An popular architectural style of how to structure and name these APIs and the endpoints is called REST(Representational Transfer State). HTTP 1.1 was designed keeping REST principles in mind
+
+
+
+
+Method		URI			Details		Function
+GET		/movies	Safe, cachable		Gets the list of all movies and their details
+GET		/movies/1234		Safe, cachable	Gets the details of Movie id 1234
+POST		/movies	N/A	Creates a new movie with the details provided. Response contains the 		URI for this newly created resource.
+PUT		/movies/1234	Idempotent	Modifies movie id 1234(creates one if it 			doesn't already exist). Response contains the URI for this newly created resource.
+DELETE		/movies/1234	Idempotent	Movie id 1234 should be deleted, if it exists. Response should contain the status of the request.
+DELETE or PUT	/movies	Invalid	Should be invalid. DELETE and PUT should specify which resource they are working on.
+
+
+=========module.exports======
+moves.js
+
+var express = require('express');
+var router = express.Router();
+var movies = [
+   {id: 101, name: "Fight Club", year: 1999, rating: 8.1},
+   {id: 102, name: "Inception", year: 2010, rating: 8.7},
+   {id: 103, name: "The Dark Knight", year: 2008, rating: 9},
+   {id: 104, name: "12 Angry Men", year: 1957, rating: 8.9}
+];
+
+//Routes will go here
+module.exports = router;
+
+=====================GET routes===========
+router.get('/', function(req, res){
+   res.json(movies);
+});
+
+[{"id":101,"name":"Fight Club","year":1999,"rating":8.1},
+{"id":102,"name":"Inception","year":2010,"rating":8.7},
+{"id":103,"name":"The Dark Knight","year":2008,"rating":9},
+{"id":104,"name":"12 Angry Men","year":1957,"rating":8.9}]
+
+
+We have a route to get all the movies. Let us now create a route to get a specific movie by its id.
+
+router.get('/:id([0-9]{3,})', function(req, res){
+   var currMovie = movies.filter(function(movie){
+      if(movie.id == req.params.id){
+         return true;
+      }
+   });
+   if(currMovie.length == 1){
+      res.json(currMovie[0])
+   } else {
+      res.status(404);//Set status to 404 as movie was not found
+      res.json({message: "Not Found"});
+   }
+});
+
+===========responessjs==========
+{"id":101,"name":"Fight Club","year":1999,"rating":8.1}
+
+=======================POST route====================
+
+router.post('/', function(req, res){
+   //Check if all fields are provided and are valid:
+   if(!req.body.name ||
+      !req.body.year.toString().match(/^[0-9]{4}$/g) ||
+      !req.body.rating.toString().match(/^[0-9]\.[0-9]$/g)){
+      
+      res.status(400);
+      res.json({message: "Bad Request"});
+   } else {
+      var newId = movies[movies.length-1].id+1;
+      movies.push({
+         id: newId,
+         name: req.body.name,
+         year: req.body.year,
+         rating: req.body.rating
+      });
+      res.json({message: "New movie created.", location: "/movies/" + newId});
+   }
+});
+
+
+===============display show=============
+{"message":"New movie created.","location":"/movies/105"}
+
+==================PUT route================
+
+router.put('/:id', function(req, res){
+   //Check if all fields are provided and are valid:
+   if(!req.body.name ||
+      !req.body.year.toString().match(/^[0-9]{4}$/g) ||
+      !req.body.rating.toString().match(/^[0-9]\.[0-9]$/g) ||
+      !req.params.id.toString().match(/^[0-9]{3,}$/g)){
+      
+      res.status(400);
+      res.json({message: "Bad Request"});
+   } else {
+      //Gets us the index of movie with given id.
+      var updateIndex = movies.map(function(movie){
+         return movie.id;
+      }).indexOf(parseInt(req.params.id));
+      
+      if(updateIndex === -1){
+         //Movie not found, create new
+         movies.push({
+            id: req.params.id,
+            name: req.body.name,
+            year: req.body.year,
+            rating: req.body.rating
+         });
+         res.json({message: "New movie created.", location: "/movies/" + req.params.id});
+      } else {
+         //Update existing movie
+         movies[updateIndex] = {
+            id: req.params.id,
+            name: req.body.name,
+            year: req.body.year,
+            rating: req.body.rating
+         };
+         res.json({message: "Movie id " + req.params.id + " updated.", 
+            location: "/movies/" + req.params.id});
+      }
+   }
+});
+
+=====================DELETE route===============
+router.delete('/:id', function(req, res){
+   var removeIndex = movies.map(function(movie){
+      return movie.id;
+   }).indexOf(req.params.id); //Gets us the index of movie with given id.
+   
+   if(removeIndex === -1){
+      res.json({message: "Not found"});
+   } else {
+      movies.splice(removeIndex, 1);
+      res.send({message: "Movie id " + req.params.id + " removed."});
+   }
+});
+
+});
+
+================ topic 2 code============
+https://stackoverflow.com/questions/20924616/relational-database-design-to-mongodb-mongoose-design
+https://stackoverflow.com/questions/34985846/mongoose-document-references-with-a-one-to-many-relationship
+https://stackoverflow.com/questions/25472166/mongoose-handling-relationship-table
+https://blog.hellojs.org/creating-relationships-between-schemas-in-a-document-based-database-like-mongodb-1f965aecc035
+https://www.codementor.io/theoutlander/introduction-to-mongoose-for-mongodb-gw9xw34el
+
+
+
+
+
