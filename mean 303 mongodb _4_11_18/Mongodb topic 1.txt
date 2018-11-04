@@ -1,0 +1,358 @@
+
+================Advantages of MongoDB over RDBMS============
+
+Schema less MongoDB is a document database in which one collection holds different documents. Number of fields, content and size of the document can differ from one document to another.
+
+Structure of a single object is clear.
+
+No complex joins.
+
+Deep query-ability. MongoDB supports dynamic queries on documents using a document-based query language that's nearly as powerful as SQL.
+
+Tuning.
+
+1) Ease of scale-out MongoDB is easy to scale
+Conversion/mapping of application objects to database objects not needed.
+
+Uses internal memory for storing the (windowed) working set, enabling faster access of data.
+
+=========Why Use MongoDB?========
+
+Document Oriented Storage Data is stored in the form of JSON style documents.
+
+Index on any attribute
+
+Replication and high availability
+
+Auto-sharding
+
+Rich queries
+
+Fast in-place updates
+
+Professional support by MongoDB
+
+
+===============Where to Use MongoDB?===========
+Big Data
+Content Management and Delivery
+Mobile and Social Infrastructure
+User Data Management
+Data Hub
+
+===============Data Modelling=============
+
+Data in MongoDB has a flexible schema.documents in the same collection. They do not need to have the same set of fields or structure, and common fields in a collection’s documents may hold different types of data.
+
+{
+   _id: POST_ID
+   title: TITLE_OF_POST, 
+   description: POST_DESCRIPTION,
+   by: POST_BY,
+   url: URL_OF_POST,
+   tags: [TAG1, TAG2, TAG3],
+   likes: TOTAL_LIKES, 
+   comments: [	
+      {
+         user:'COMMENT_BY',
+         message: TEXT,
+         dateCreated: DATE_TIME,
+         like: LIKES 
+      },
+      {
+         user:'COMMENT_BY',
+         message: TEXT,
+         dateCreated: DATE_TIME,
+         like: LIKES
+      }
+   ]
+}
+===============mongodb==========
+Create Database
+
+1) use DATABASE_NAME
+
+2) 
+>use mydb
+switched to db mydb
+
+3)
+
+>db
+mydb
+
+==================Create Collection=================
+
+>show collections
+mycollection
+system.indexes
+
+========================Datatypes======================
+
+
+1) String  
+
+	This is the most commonly used datatype to store the data. String in MongoDB must be UTF-8 valid.
+
+2)  Integer 
+
+            This type is used to store a numerical value. Integer can be 32 bit or 64 bit depending upon your server.
+
+3) Boolean 
+
+	This type is used to store a boolean (true/ false) value.
+
+4) Double 
+	This type is used to store floating point values.
+
+5)Min/ Max keys 
+
+	This type is used to compare a value against the lowest and highest BSON elements.
+
+6)Arrays 
+	This type is used to store arrays or list or multiple values into one key.
+
+7) Timestamp  
+	ctimestamp. This can be handy for recording when a document has been modified or added.
+
+8)  Object  
+	This datatype is used for embedded documents.
+
+9  Null   
+
+     This type is used to store a Null value.
+
+10 )  SymbolThis
+ datatype is used identically to a string; however, it's generally reserved for languages that use a specific symbol type.
+
+11)   Date This datatype is used to store the current date or time in UNIX time format. You can specify your own date time by creating object of Date and passing day, month, year into it.
+
+12  Object ID  
+
+     This datatype is used to store the document’s ID.
+
+13  Binary data 
+     This datatype is used to store binary data.
+
+14  )   Code 
+
+      This datatype is used to store JavaScript code into the document.
+
+15)   Regular expression
+
+    This datatype is used to store regular expression.
+
+========================
+
+>db.mycol.insert({
+ 
+   title: 'MongoDB Overview', 
+   description: 'MongoDB is no sql database',
+   by: 'yes khan',
+   tags: ['mongodb', 'database', 'NoSQL'],
+   likes: 100
+})
+
+=======================Query Document===================
+
+>db.COLLECTION_NAME.find()
+
+Syntax
+>db.mycol.find().pretty()
+
+=================mongodbs query==================
+
+Operation	Syntax		Example		RDBMS 			Equivalent
+Equality	{<key>:<value>}	db.homes.find({"_id" : ObjectId("58df766f9a62e80ca874f38e")})
+	   where _id ='58df766f9a62e80ca874f38e'
+Less Than	{<key>:{$lt:<value>}} db.mycol.find({"likes":{$lt:50}}).pretty()	               where likes < 50
+Less Than Equals	{<key>:{$lte:<value>}}	db.mycol.find({"_id":{$lte:50}}).pretty()	where likes <= 50
+Greater Than	{<key>:{$gt:<value>}}	db.mycol.find({"likes":{$gt:50}}).pretty()	where likes > 50
+Greater Than Equals	{<key>:{$gte:<value>}}	db.mycol.find({"likes":{$gte:50}}).pretty()	where likes >= 50
+Not Equals	{<key>:{$ne:<value>}}	db.mycol.find({"likes":{$ne:50}}).pretty()	where likes != 50
+
+====================AND in MongoDB===================
+>db.mycol.find(
+   {
+      $and: [
+         {key1: value1}, {key2:value2}
+      ]
+   }
+).pretty()
+
+
+>db.mycol.find({$and:[{"description":"MongoDB is no sql"},{"title": "MongoDB Overview"}]}).pretty() {
+   "_id": ObjectId(7df78ad8902c),
+   "title": "MongoDB Overview", 
+   "description": "MongoDB is no sql ",
+   "url": "http://www.zaaviyah.com",
+   "tags": ["mongodb", "database", "NoSQL"],
+   "likes": "100"
+}
+
+=======================OR in MongoDB============
+>db.mycol.find(
+   {
+      $or: [
+         {key1: value1}, {key2:value2}
+      ]
+   }
+).pretty()
+
+>db.mycol.find({$or:[{"by":"pakistan"},{"title": "karachi"}]}).pretty()
+{
+   "_id": ObjectId(7df78ad8902c),
+   "title": "karachi", 
+   "description": "MongoDB is no sql database",
+   "by": "pakistan",
+   "url": "http://www.zaaviyah.com",
+   "tags": ["mongodb", "database", "NoSQL"],
+   "likes": "100"
+}
+
+
+=====================Using AND and OR Together===============
+
+>db.mycol.find({"likes": {$gt:10}, $or: [{"by": "zaaviyah"},
+   {"title": "MongoDB Overview"}]}).pretty()
+{
+   "_id": ObjectId(7df78ad8902c),
+   "title": "MongoDB Overview", 
+   "description": "MongoDB is no sql database",
+   "url": "http://www.zaaviyah.com",
+   "tags": ["mongodb", "database", "NoSQL"],
+   "likes": "100"
+}
+>
+
+===============Update===============
+MongoDB's update() and save() methods are used to update document into a collection. The update() method
+
+>db.COLLECTION_NAME.update(SELECTION_CRITERIA, UPDATED_DATA)
+
+
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"MongoDB Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":"zaaviyah Overview"}
+
+
+>db.mycol.update({'title':'MongoDB Overview'},{$set:{'title':'New MongoDB '}})
+>db.mycol.find()
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"New MongoDB "}
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":"zaaviyah Overview"}
+>
+
+
+>db.home.update({'title':'pakistan'},
+   {$set:{'title':'New MongoDB db'}},{multi:true})
+
+============================
+
+>db.mycol.save(
+   {
+      "_id" : ObjectId(5983548781331adf45ec7), "title":"apptron New Topic",
+         "by":"apptron"
+   }
+)
+>db.mycol.find()
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"  New Topic",
+   "by":"Tutorials Point"}
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":" Overview"}
+>
+
+==============================Delete===================
+>db.COLLECTION_NAME.remove(DELLETION_CRITTERIA)
+
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"MongoDB Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":"apptron Overview"}
+
+>db.mycol.remove({'title':'MongoDB Overview'})
+>db.mycol.find()
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":"apptron Overview"}
+>
+
+==================Projection================
+
+In MongoDB, projection means selecting only the necessary data rather than selecting whole of the data of a document
+>db.COLLECTION_NAME.find({},{KEY:1})
+
+{ "_id" : ObjectId(5983548781331adf45ec5), "title":"MongoDB Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec6), "title":"NoSQL Overview"}
+{ "_id" : ObjectId(5983548781331adf45ec7), "title":"shah Overview"}
+
+
+>db.mycol.find({},{"title":1,_id:0})
+{"title":"MongoDB Overview"}
+{"title":"NoSQL Overview"}
+{"title":"shahnawaz Overview"}
+>
+
+==================Limit Records===========
+>db.COLLECTION_NAME.find().limit(NUMBER)
+
+>db.mycol.find({},{"title":1,_id:0}).limit(2)
+{"title":"MongoDB Overview"}
+{"title":"NoSQL Overview"}
+>
+
+=================MongoDB Skip() Method====================
+
+>db.COLLECTION_NAME.find().limit(NUMBER).skip(NUMBER)
+
+>db.mycol.find({},{"title":1,_id:0}).limit(1).skip(1)
+{"title":"NoSQL Overview"}
+>
+
+====================The sort() Method=============
+
+>db.COLLECTION_NAME.find().sort({KEY:1})
+
+>db.mycol.find({},{"title":1,_id:0}).sort({"title":-1})
+{"title":"TOverview"}
+{"title":"NoSQL Overview"}
+{"title":"MongoDB Overview"}
+>
+==================Indexing=================
+
+>db.COLLECTION_NAME.ensureIndex({KEY:1})
+
+>db.mycol.ensureIndex({"title":1})
+
+====================Aggregation==================
+
+Aggregations operations process data records and return computed results. Aggregation operations group values from multiple documents together, and can perform a variety of operations on the grouped data to return a single result. In SQL count(*) and with group by is an equivalent of mongodb aggregation.
+
+>db.COLLECTION_NAME.aggregate(AGGREGATE_OPERATION)
+
+
+{
+   _id: ObjectId(7df78ad8902c)
+   title: 'MongoDB Overview', 
+   description: 'MongoDB is no sql database',
+   by_user: 'zaaviyah',
+  
+   tags: ['mongodb', 'database', 'NoSQL'],
+   likes: 100
+},
+{
+   _id: ObjectId(7df78ad8902d)
+   title: 'NoSQL Overview', 
+   description: 'No sql database is very fast',
+   by_user: 'tutorials point',
+  
+   tags: ['mongodb', 'database', 'NoSQL'],
+   likes: 10
+},
+{
+   _id: ObjectId(7df78ad8902e)
+   title: 'Neo4j Overview', 
+   description: 'Neo4j is no sql database',
+   by_user: 'Neo4j',
+   url: 'http://www.neo4j.com',
+   tags: ['neo4j', 'database', 'NoSQL'],
+   likes: 750
+},
